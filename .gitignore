@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pkl
+*.joblib
+*.csv
+.env
+.streamlit/
+data/raw/
+data/processed/
+models/
