@@ -32,7 +32,7 @@ from utils.config import (
 # IMPORT PAGES DIRECTLY
 # -------------------------
 
-from pages import (
+from views import (
     _1_Executive_Summary,
     _2_Customer_Analytics,
     _3_Sales_Dashboard,
@@ -66,35 +66,31 @@ def load_data():
 
 def main():
 
-    st.sidebar.title(
-        "Customer Churn Dashboard"
-    )
-
-    st.sidebar.title("Customer Churn Dashboard")
-
-    selected = option_menu(
-        "Navigation",
-        [
-            "Executive Summary",
-            "Customer Analytics",
-            "Sales Dashboard",
-            "Prediction Center",
-            "Customer Segmentation",
-            "Model Performance",
-            "Data Explorer",
-        ],
-        icons=[
-            "bar-chart",
-            "people",
-            "graph-up",
-            "cpu",
-            "diagram-3",
-            "robot",
-            "table"
-        ],
-        menu_icon="cast",
-        default_index=0
-    )
+    with st.sidebar:
+        st.title("Customer Churn Dashboard")
+        selected = option_menu(
+            "Navigation",
+            [
+                "Executive Summary",
+                "Customer Analytics",
+                "Sales Dashboard",
+                "Prediction Center",
+                "Customer Segmentation",
+                "Model Performance",
+                "Data Explorer",
+            ],
+            icons=[
+                "bar-chart",
+                "people",
+                "graph-up",
+                "cpu",
+                "diagram-3",
+                "robot",
+                "table"
+            ],
+            menu_icon="cast",
+            default_index=0
+        )
 
     df, segmented_df, model_package, model_metrics = load_data()
 
@@ -155,4 +151,4 @@ def main():
         )
 
 if __name__ == "__main__":
-    main()
+    main()
