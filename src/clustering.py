@@ -33,8 +33,15 @@ def assign_risk_groups(cluster_df: pd.DataFrame) -> pd.DataFrame:
     )
     score = (cluster_summary['MonthlyCharges'] / (cluster_summary['tenure'] + 1)).sort_values(ascending=False)
     risk_order = ['High Risk', 'Medium Risk', 'Low Risk']
-    mapping = {cluster: risk_order[idx] for idx, cluster in enumerate(score.index)}
-    cluster_df['Risk_Group'] = cluster_df['Cluster'].map(mapping)
+    persona_order = [
+        'High Spend, Short Tenure (Flight Risk)',
+        'Balanced Moderate Users (Transitional)',
+        'Long-term High LTV (Loyal Advocates)'
+    ]
+    mapping_risk = {cluster: risk_order[idx] for idx, cluster in enumerate(score.index)}
+    mapping_persona = {cluster: persona_order[idx] for idx, cluster in enumerate(score.index)}
+    cluster_df['Risk_Group'] = cluster_df['Cluster'].map(mapping_risk)
+    cluster_df['Segment_Persona'] = cluster_df['Cluster'].map(mapping_persona)
     return cluster_df
 
 

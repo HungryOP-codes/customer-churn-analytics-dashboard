@@ -13,24 +13,21 @@ from utils.helpers import ensure_directories, download_telco_dataset
 def load_raw_data():
     ensure_directories()
     if not RAW_DATA_PATH.exists():
-        try:
-            download_telco_dataset()
-        except Exception as error:
-            raise FileNotFoundError(
-                f"Could not locate or download dataset. Please place WA_Fn-UseC_-Telco-Customer-Churn.csv in {RAW_DATA_PATH.parent}."
-            ) from error
+        download_telco_dataset()
     return pd.read_csv(RAW_DATA_PATH)
 
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df = df.drop_duplicates()
+
+    if 'customerID' not in df.columns:
+        df['customerID'] = [f"CUST-{i:05d}" for i in range(1, len(df) + 1)]
+
     df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
     df['TotalCharges'] = df['TotalCharges'].fillna(df['MonthlyCharges'] * df['tenure'])
-    if 'customerID' in df.columns:
-        df = df.drop(columns=['customerID'])
 
-    binary_map = {'Yes': 1, 'No': 0, 'Male': 1, 'Female': 0}
+    binary_map = {'Yes': 1, 'No': 0, 'Male': 1, 'Female': 0, 1: 1, 0: 0, '1': 1, '0': 0}
     binary_columns = [
         'gender',
         'SeniorCitizen',
@@ -43,9 +40,9 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
 
     for column in binary_columns:
         if column in df.columns:
-            if df[column].dtype == object:
-                df[column] = df[column].replace(binary_map)
-            df[column] = pd.to_numeric(df[column], errors='coerce').fillna(0).astype(int)
+            mapped = df[column].map(binary_map)
+            numeric_fallback = pd.to_numeric(df[column], errors='coerce')
+            df[column] = mapped.fillna(numeric_fallback).fillna(0).astype(int)
 
     return df
 

@@ -39,7 +39,8 @@ def build_derived_features(df: pd.DataFrame) -> pd.DataFrame:
     df['Customer_Lifetime_Value'] = df['MonthlyCharges'] * df['tenure']
 
     def assign_risk(row):
-        if row['Churn'] == 1 or row['tenure'] <= 6 or row['MonthlyCharges'] > 90:
+        # Eliminate target leakage: compute risk using only customer behavioral attributes
+        if row['tenure'] <= 6 or row['MonthlyCharges'] > 90:
             return 'High Risk'
         if row['tenure'] <= 18 or row['MonthlyCharges'] > 70:
             return 'Medium Risk'

@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import numpy as np
 import pandas as pd
 import joblib
 
@@ -20,9 +21,9 @@ def build_input_dataframe(customer_info: dict) -> pd.DataFrame:
     df = pd.DataFrame([customer_info])
     df['Gender'] = df['Gender'].astype(str)
     df['gender'] = df['Gender'].replace({'Male': 1, 'Female': 0}).fillna(0).astype(int)
-    df['SeniorCitizen'] = int(df.get('SeniorCitizen', 0))
-    df['tenure'] = int(df['Tenure'])
-    df['MonthlyCharges'] = float(df['MonthlyCharges'])
+    df['SeniorCitizen'] = int(customer_info.get('SeniorCitizen', 0))
+    df['tenure'] = int(customer_info.get('Tenure', 0))
+    df['MonthlyCharges'] = float(customer_info.get('MonthlyCharges', 0.0))
     df['TotalCharges'] = df['tenure'] * df['MonthlyCharges']
 
     tenure = df['tenure'].iloc[0]
@@ -71,8 +72,36 @@ def encode_input(df: pd.DataFrame, encoders: dict) -> pd.DataFrame:
     for column, encoder in encoders.items():
         if column not in df.columns:
             raise ValueError(f"Expected feature column '{column}' not found in input.")
-        df[column] = encoder.transform(df[column].astype(str))
+        known_classes = set(encoder.classes_)
+        df[column] = df[column].astype(str).map(
+            lambda val: val if val in known_classes else encoder.classes_[0]
+        )
+        df[column] = encoder.transform(df[column])
     return df
+
+
+def generate_retention_recommendations(customer_info: dict, probability: float) -> list:
+    recommendations = []
+    contract = str(customer_info.get('Contract', ''))
+    payment = str(customer_info.get('PaymentMethod', ''))
+    tenure = float(customer_info.get('Tenure', 0))
+    monthly = float(customer_info.get('MonthlyCharges', 0))
+
+    if probability >= 0.5:
+        if contract == 'Month-to-month':
+            recommendations.append("Offer a 15% discount on an annual contract commitment.")
+        if 'Electronic check' in payment:
+            recommendations.append("Incentivize switching to automatic ACH or credit card payment with a one-time $10 credit.")
+        if monthly > 80:
+            recommendations.append("Propose service bundle optimization or loyalty pricing adjustment.")
+        if tenure <= 12:
+            recommendations.append("Assign a dedicated onboarding customer success specialist.")
+        if not recommendations:
+            recommendations.append("Initiate targeted proactive customer success outreach.")
+    else:
+        recommendations.append("Customer shows high retention affinity. Recommend cross-sell / up-sell opportunities.")
+
+    return recommendations
 
 
 def predict_churn(customer_info: dict) -> dict:
@@ -93,7 +122,73 @@ def predict_churn(customer_info: dict) -> dict:
         'prediction': 'Yes' if prediction == 1 else 'No',
         'probability': round(probability, 4),
         'risk_level': risk_level,
+        'model_name': package.get('model_name', 'Trained Classifier'),
+        'recommendations': generate_retention_recommendations(customer_info, probability),
     }
+
+
+def predict_batch(df_input: pd.DataFrame) -> pd.DataFrame:
+    package = load_model_package()
+    model = package['model']
+    encoders = package['encoders']
+    feature_columns = package['feature_columns']
+
+    df = df_input.copy()
+    # Normalize column casing if necessary
+    cols_map = {c.lower(): c for c in df.columns}
+    gender_col = cols_map.get('gender', 'gender')
+    if gender_col in df.columns:
+        df['gender'] = df[gender_col].replace({'Male': 1, 'Female': 0}).fillna(0).astype(int)
+    else:
+        df['gender'] = 1
+
+    if 'SeniorCitizen' in df.columns:
+        df['SeniorCitizen'] = pd.to_numeric(df['SeniorCitizen'], errors='coerce').fillna(0).astype(int)
+    elif 'seniorcitizen' in cols_map and cols_map['seniorcitizen'] in df.columns:
+        df['SeniorCitizen'] = pd.to_numeric(df[cols_map['seniorcitizen']], errors='coerce').fillna(0).astype(int)
+    else:
+        df['SeniorCitizen'] = 0
+
+    tenure_col = cols_map.get('tenure', 'tenure')
+    df['tenure'] = pd.to_numeric(df[tenure_col], errors='coerce').fillna(1).astype(int)
+
+    monthly_col = cols_map.get('monthlycharges', 'MonthlyCharges')
+    df['MonthlyCharges'] = pd.to_numeric(df[monthly_col], errors='coerce').fillna(50.0).astype(float)
+    df['TotalCharges'] = df['tenure'] * df['MonthlyCharges']
+
+    tenure_bins = [0, 6, 12, 24, 48, 1000]
+    tenure_labels = ['0-6', '7-12', '13-24', '25-48', '49+']
+    df['Tenure_Group'] = pd.cut(df['tenure'], bins=tenure_bins, labels=tenure_labels, include_lowest=True).astype(str)
+
+    charge_bins = [0, 35, 70, 100, 10000]
+    charge_labels = ['Low', 'Moderate', 'High', 'Very High']
+    df['Monthly_Charges_Group'] = pd.cut(df['MonthlyCharges'], bins=charge_bins, labels=charge_labels, include_lowest=True).astype(str)
+
+    df['Customer_Lifetime_Value'] = df['MonthlyCharges'] * df['tenure']
+
+    def calc_risk(r):
+        if r['tenure'] <= 6 or r['MonthlyCharges'] > 90:
+            return 'High Risk'
+        if r['tenure'] <= 18 or r['MonthlyCharges'] > 70:
+            return 'Medium Risk'
+        return 'Low Risk'
+
+    df['Risk_Category'] = df.apply(calc_risk, axis=1)
+
+    contract_col = cols_map.get('contract', 'Contract')
+    payment_col = cols_map.get('paymentmethod', 'PaymentMethod')
+    df['Contract'] = df[contract_col].astype(str) if contract_col in df.columns else 'Month-to-month'
+    df['PaymentMethod'] = df[payment_col].astype(str) if payment_col in df.columns else 'Electronic check'
+
+    processed_df = encode_input(df[feature_columns].copy(), encoders)
+    probabilities = model.predict_proba(processed_df[feature_columns])[:, 1]
+    predictions = model.predict(processed_df[feature_columns])
+
+    result_df = df_input.copy()
+    result_df['Churn_Prediction'] = ['Yes' if p == 1 else 'No' for p in predictions]
+    result_df['Churn_Probability'] = np.round(probabilities, 4)
+    result_df['Risk_Category'] = df['Risk_Category']
+    return result_df
 
 
 def main():
