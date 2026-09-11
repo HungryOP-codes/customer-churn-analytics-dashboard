@@ -2,7 +2,7 @@
 
 An end-to-end Big Data Analytics and Machine Learning application designed to identify customer attrition risk, segment accounts by commercial behavior, and deliver actionable retention intelligence through an interactive Streamlit dashboard.
 
-> **Note on Project Heritage**: This project is an enhanced and redesigned edition based on the open-source repository [heena091/Customer-Churn-prediction-and-sales-dashboard](https://github.com/heena091/Customer-Churn-prediction-and-sales-dashboard). It improves the pipeline by eliminating target leakage in feature engineering, resolving Pandas 3.0+ and Plotly 7+ compatibility issues, adding automated data fallback provisioning, introducing batch CSV scoring, and redesigning the entire dashboard interface with automated test coverage.
+> **Project Summary**: An independent Customer Churn Prediction & Commercial Sales Dashboard project featuring a leakage-free machine learning pipeline, multi-model classification benchmarks, unsupervised customer segmentation, and an interactive 7-page Streamlit analytics application.
 
 ---
 
@@ -137,7 +137,7 @@ Customer-Churn-prediction-and-sales-dashboard/
 
 ### 1. Clone the Repository
 ```powershell
-git clone https://github.com/heena091/Customer-Churn-prediction-and-sales-dashboard.git
+git clone https://github.com/HungryOP-codes/Customer-Churn-prediction-and-sales-dashboard.git
 cd Customer-Churn-prediction-and-sales-dashboard
 ```
 
@@ -222,13 +222,3 @@ py tests/test_audit.py
 * **Real-Time Event Streaming**: Connect ingestion to Apache Kafka or Spark Streaming to monitor live usage drops and payment failures.
 * **Survival Analysis**: Implement Cox Proportional Hazards modeling to predict expected time-to-churn in addition to binary probability.
 * **Automated Webhooks**: Connect high-risk prediction triggers to CRM endpoints (e.g., Slack or email alerts) for immediate customer success outreach.
-
----
-
-## 🤝 Attribution
-
-This project is an enhanced and redesigned implementation based on the open-source repository:
-* **Original Project**: [heena091/Customer-Churn-prediction-and-sales-dashboard](https://github.com/heena091/Customer-Churn-prediction-and-sales-dashboard)
-* **Author of Base Project**: Heena Patel (`heena091`)
-
-
