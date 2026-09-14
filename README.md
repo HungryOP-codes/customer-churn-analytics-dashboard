@@ -191,15 +191,54 @@ py tests/test_audit.py
 
 ## 📸 Screenshots
 
-| Page | Description | Preview |
-| :--- | :--- | :---: |
-| **Executive Summary** | High-level KPI cockpit, contract distribution donut, and tenure revenue area chart | *[Add Screenshot: Executive Summary]* |
-| **Customer Analytics** | Multi-factor cohort filter bar, payment method churn rates, and bivariate scatter map | *[Add Screenshot: Customer Analytics]* |
-| **Sales Dashboard** | Commercial revenue-at-risk, ARPU, and Top-10 CLV customer leaderboard | *[Add Screenshot: Sales Dashboard]* |
-| **Prediction Center** | Real-time prediction simulator with probability gauge and batch CSV scoring tab | *[Add Screenshot: Prediction Center]* |
-| **Customer Segmentation** | K-Means cluster persona cards and tenure vs. monthly charges scatter diagram | *[Add Screenshot: Customer Segmentation]* |
-| **Model Performance** | Cross-model benchmark table, confusion matrix heatmap, ROC curve, and feature importance | *[Add Screenshot: Model Performance]* |
-| **Data Explorer** | Searchable customer warehouse table with ID lookup, filters, and CSV export | *[Add Screenshot: Data Explorer]* |
+### 1. Executive Summary
+*High-level KPI cockpit, contract distribution donut, and annualized churn rates.*
+
+![Executive Summary](screenshots/Screenshot%202026-09-11%20234548.png)
+
+---
+
+### 2. Sales Dashboard
+*Commercial revenue intelligence, contract revenue concentration, payment channels, and Customer Lifetime Value (CLV) trajectory.*
+
+#### Commercial Revenue & Payment Channels
+![Sales Revenue & Payment Channels](screenshots/Screenshot%202026-09-11%20234919.png)
+
+#### Revenue Trajectory & High-Value Accounts Leaderboard
+![Revenue Trajectory & High-Value Accounts](screenshots/Screenshot%202026-09-11%20234935.png)
+
+---
+
+### 3. Prediction Center
+*Real-time churn risk simulator, dynamic probability gauge, risk classification badge, and prescriptive retention playbook.*
+
+#### Customer Simulation Input Form
+![Prediction Simulator Input](screenshots/Screenshot%202026-09-11%20234629.png)
+
+#### Real-Time Churn Gauge & Retention Playbook
+![Prediction Results Gauge & Playbook](screenshots/Screenshot%202026-09-11%20234648.png)
+
+---
+
+### 4. Customer Segmentation
+*Unsupervised K-Means clustering ($K=3$), behavioral persona cards, and bivariate cluster scatter analysis.*
+
+#### Segment Persona Profiles & Cluster Scatter Plot
+![Customer Segmentation Personas](screenshots/Screenshot%202026-09-11%20234843.png)
+
+#### Cluster Distribution & Segment Volume Analysis
+![Customer Segmentation Scatter & Volume](screenshots/Screenshot%202026-09-11%20234902.png)
+
+---
+
+### 5. Model
+*Cross-algorithm leaderboard benchmark, confusion matrix heatmap, ROC curve, and global feature importance ranking.*
+
+#### Model Benchmark Leaderboard & Confusion Matrix
+![Model Benchmarks Leaderboard](screenshots/Screenshot%202026-09-11%20234718.png)
+
+#### Confusion Matrix & Top Predictive Feature Drivers
+![Feature Importance & Model Evaluation](screenshots/Screenshot%202026-09-11%20234811.png)
 
 ---
 
